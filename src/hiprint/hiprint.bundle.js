@@ -52,7 +52,7 @@ import lImg from "./css/image/l_img.svg";
 import vImg from "./css/image/v_img.svg";
 // pdf
 import {jsPDF} from "jspdf";
-import html2canvas from "@wtto00/html2canvas";
+import html2canvas from "html2canvas";
 // 数字转中文,大写,金额
 import Nzh from "nzh/dist/nzh.min.js";
 // 解析svg 到 canvas, 二维码条形码需要
@@ -9330,7 +9330,8 @@ var hiprint = function (t) {
           const height = o.a.pt.toMm(this.options.height - (!this.options.hideTitle ? this.options.lineHeight ?? (this.options.fontSize ?? 10.5) * 1.5 :0));
           var barcode = bwipjs.toSVG({
             bcid: this.options.barcodeType || 'code128',
-            text: text || this.options.testData || this.options.title,
+            text: text,
+            // text: text || this.options.testData || this.options.title,
             scale: this.options.barWidth || 1,
             width: !this.getBarAutoWidth() ? parseInt(o.a.pt.toMm(this.options.getWidth())) : '',
             height: parseInt(height),
@@ -9406,7 +9407,8 @@ var hiprint = function (t) {
           const paddingheight = width >= height ? 0 : Math.abs(parseInt((height - width) / 2));
           var qrcode = bwipjs.toSVG({
             bcid: this.options.qrcodeType || 'qrcode',
-            text: text || this.options.testData || this.options.title,
+            // text: text || this.options.testData || this.options.title,
+            text: text,
             scale: 1,
             paddingwidth,
             paddingheight,

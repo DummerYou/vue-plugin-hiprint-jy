@@ -5,6 +5,7 @@ export const link = "https://ccsimple.gitee.io/vue-plugin-hiprint/";
 export const preview =
   "/static/template7.png";
 
+// let _ = {}
 import _ from "lodash";
 
 // 构建打印数据

@@ -23,6 +23,8 @@
 
 ## 关于此插件
 
+此插件是更新到0.0.58版本后需要node16+安装，项目不支持 修改为14版本
+
 vue-plugin-hiprint (基于 [hiprint 2.5.4](http://hiprint.io/)) 当时只是为了方便 <span style="color: red">我（并非hiprint原作者）</span> 在vue项目中引入使用，所以以此命名。
 
 此 <span style="color: red">插件</span> 仅仅是一个 <span style="color: red">JavaScript【工具库】</span> 而非 <span style="color: yellow">Vue【组件库】</span>，所以它默认不包含demo中的那些组件页面（demo代码可复制使用）。
