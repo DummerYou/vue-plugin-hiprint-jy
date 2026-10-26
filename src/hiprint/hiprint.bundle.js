@@ -672,6 +672,9 @@ var hiprint = function (t) {
         var n = this.options.showInPage,
           i = this.options.unShowInPage;
 
+        // “始终隐藏”需要对所有渲染路径生效，包括固定元素、页眉和页脚。
+        if ("none" == n) return !1;
+
         if (n) {
           if ("first" == n) return 0 == t;
           if (t == e - 1 && "last" == i) return !1;
@@ -1424,15 +1427,17 @@ var hiprint = function (t) {
           case 8:
           case 46:
             var templete = _HiPrintlib__WEBPACK_IMPORTED_MODULE_6__.a.instance.getPrintTemplateById(n.templateId)
-            templete.deletePrintElement(n)
-            hinnn.event.trigger("hiprintTemplateDataChanged_" + n.templateId, "删除");
-            hinnn.event.trigger("clearSettingContainer")
-             // 获取到了template 拿到template里面所有被选中的元素
-             els.forEach(ele=>{
-              templete.deletePrintElement(ele)
-              hinnn.event.trigger("hiprintTemplateDataChanged_" + ele.templateId, "删除");
-            })
-            hinnn.event.trigger("clearSettingContainer")
+            var deleteElements = [];
+            [n].concat(els).forEach(function (ele) {
+              if (deleteElements.indexOf(ele) < 0) deleteElements.push(ele);
+            });
+            deleteElements.forEach(function (ele) {
+              templete.deletePrintElement(ele);
+            });
+            if (deleteElements.length) {
+              hinnn.event.trigger("hiprintTemplateDataChanged_" + n.templateId, "删除");
+              hinnn.event.trigger("clearSettingContainer");
+            }
             break
           case 37:
             i = n.options.getLeft();
@@ -8533,7 +8538,7 @@ var hiprint = function (t) {
         this.target = $('<div class="hiprint-printPaper"><div class="hiprint-printPaper-content"></div></div>'), this.paperContentTarget = this.target.find(".hiprint-printPaper-content"), this.target.css("width", this.mmwidth + "mm"), this.target.css("height", this.mmheight - p.a.instance.paperHeightTrim + "mm"), this.target.attr("original-height", this.mmheight), this.zoom(this.scale);
       }, t.prototype.createHeaderLine = function () {
         var t = this;
-        this.headerLinetarget = $('<div class="hiprint-headerLine"  style="position: absolute;width: 100%;border-top: 1px dashed #c9bebe;height: 7pt;"></div>'), this.headerLinetarget.css("top", (this.paperHeader || -1) + "pt"), 0 == this.paperHeader && this.headerLinetarget.addClass("hideheaderLinetarget"), this.paperContentTarget.append(this.headerLinetarget), this.dragHeadLineOrFootLine(this.headerLinetarget, function (e, n) {
+        this.headerLinetarget = $('<div class="hiprint-headerLine"  style="position: absolute;width: 100%;border-top: 1px dashed #c9bebe;height: 7pt;"></div>'), this.headerLinetarget.css("top", (this.paperHeader || -1) + "pt"), this.headerLinetarget.toggleClass("hideheaderLinetarget", 0 == this.paperHeader), this.paperContentTarget.append(this.headerLinetarget), this.dragHeadLineOrFootLine(this.headerLinetarget, function (e, n) {
           if (n >= t.paperFooter) {
             n = t.paperFooter - 10;
           }
@@ -8541,7 +8546,7 @@ var hiprint = function (t) {
         });
       }, t.prototype.createFooterLine = function () {
         var t = this;
-        this.footerLinetarget = $('<div class="hiprint-footerLine"  style="position: absolute;width: 100%;border-top: 1px dashed #c9bebe;height: 7pt;"></div>'), this.footerLinetarget.css("top", parseInt(this.paperFooter.toString()) + "pt"), this.paperFooter == this.height && (this.footerLinetarget.css("top", this.mmheight - p.a.instance.paperHeightTrim + "mm"), this.footerLinetarget.addClass("hidefooterLinetarget")), this.paperContentTarget.append(this.footerLinetarget), this.dragHeadLineOrFootLine(this.footerLinetarget, function (e, n) {
+        this.footerLinetarget = $('<div class="hiprint-footerLine"  style="position: absolute;width: 100%;border-top: 1px dashed #c9bebe;height: 7pt;"></div>'), this.footerLinetarget.css("top", parseInt(this.paperFooter.toString()) + "pt"), this.paperFooter == this.height && this.footerLinetarget.css("top", this.mmheight - p.a.instance.paperHeightTrim + "mm"), this.footerLinetarget.toggleClass("hidefooterLinetarget", this.paperFooter == this.height), this.paperContentTarget.append(this.footerLinetarget), this.dragHeadLineOrFootLine(this.footerLinetarget, function (e, n) {
           if (n <= t.paperHeader) {
             n = t.paperHeader + 10;
           }
@@ -8614,7 +8619,7 @@ var hiprint = function (t) {
         this.width = o.a.mm.toPt(t), this.height = o.a.mm.toPt(e), this.mmwidth = t, this.mmheight = e, this.target.css("width", t + "mm"), this.target.css("height", e - p.a.instance.paperHeightTrim + "mm"), this.target.attr("original-height", this.mmheight);
         // 按比例计算页脚高度
         var paperFooter = this.height * parperFooterRatio;
-        this.paperFooter = paperFooter || this.height, this.footerLinetarget.css("top", paperFooter + "pt"),
+        this.paperFooter = paperFooter || this.height, this.footerLinetarget.css("top", paperFooter + "pt"), this.footerLinetarget.toggleClass("hidefooterLinetarget", this.paperFooter == this.height),
           this.contentHeight = this.paperFooter - this.paperHeader,
           // 设置纸张后, 页码位置重置问题
           this.paperNumberLeft = this.paperNumberLeft > this.width ? parseInt((this.width - 30).toString()) : this.paperNumberLeft;
@@ -9733,10 +9738,11 @@ var hiprint = function (t) {
           this.designPaper.mmheight = t.height, this.designPaper.mmwidth = t.width;
           // 页眉线
           this.designPaper.headerLinetarget.css("top", (this.paperHeader || -1) + "pt"),
-          0 == this.paperHeader && this.designPaper.headerLinetarget.addClass("hideheaderLinetarget");
+          this.designPaper.headerLinetarget.toggleClass("hideheaderLinetarget", 0 == this.paperHeader);
           // 页脚线
           this.designPaper.footerLinetarget.css("top", parseInt(this.paperFooter.toString()) + "pt"),
-          this.paperFooter == this.height && (this.designPaper.footerLinetarget.css("top", t.height - p.a.instance.paperHeightTrim + "mm"));
+          this.designPaper.paperFooter == this.designPaper.height && (this.designPaper.footerLinetarget.css("top", t.height - p.a.instance.paperHeightTrim + "mm")),
+          this.designPaper.footerLinetarget.toggleClass("hidefooterLinetarget", this.designPaper.paperFooter == this.designPaper.height);
           // 水印参数
           this.watermarkOptions = t.watermarkOptions || {};
           this.designPaper.createWaterMark(true, this.index, this.watermarkOptions);
@@ -9820,6 +9826,7 @@ var hiprint = function (t) {
           let replacePosition = null
           var left = null
           var top = null
+          var pasted = false;
           objList.forEach((obj,index) => {
             if (!obj.printElementType && !obj.templateId) return;
             // 复制使用当前模板内的元素 进行克隆
@@ -9864,11 +9871,14 @@ var hiprint = function (t) {
               a.options.qid = template.qtDesignderFunction(a.options.field)
             }
             n.printElements.push(a), a.design(void 0, n.designPaper);
+            pasted = true;
             console.log('pasteJson success');
-            o.a.event.trigger("hiprintTemplateDataChanged_" + n.templateId, "复制");
             // 点击克隆出来的元素
             a.designTarget.children('.resize-panel').trigger($.Event('click'));
           })
+          if (pasted) {
+            this.recordHistory("复制");
+          }
         } catch (e) {
           console.error('pasteJson error', e);
         }
@@ -9884,7 +9894,8 @@ var hiprint = function (t) {
         var a,
           p = n || [],
           s = i || this,
-          l = void 0;
+          l = void 0,
+          displayRuleTargets = [];
 
         if (i) {
           l = p[p.length - 1];
@@ -9927,8 +9938,17 @@ var hiprint = function (t) {
               }
               a.append(l.getTarget());
             }
-            // 元素隐藏时不添加到html内
-            t.target && (("none" != e.options.showInPage && l.append(t.target)), l.updatePrintLine(t.printLine), e.onRendered(l, t.target));
+            // 先完成分页和占位计算，待总页数确定后统一应用显示规则。
+            if (t.target) {
+              l.append(t.target);
+              displayRuleTargets.push({
+                element: e,
+                paper: l,
+                target: t.target,
+              });
+              l.updatePrintLine(t.printLine);
+              e.onRendered(l, t.target);
+            }
             i == n.length - 1 && t.referenceElement && l.updateReferenceElement(t.referenceElement);
           });
         });
@@ -9952,6 +9972,11 @@ var hiprint = function (t) {
           if (this.lastPaperFooter) p[p.length - 1].printLine > this.lastPaperFooter && (l = s.createNewPage(p.length, l.referenceElement), p.push(l), a.append(l.getTarget()));
           // 这里是处理奇偶页设置
           this.panelPaperRule && ("odd" == this.panelPaperRule && p.length % 2 == 0 && (l = s.createNewPage(p.length, l.referenceElement), p.push(l), a.append(l.getTarget())), "even" == this.panelPaperRule && p.length % 2 == 1 && (l = s.createNewPage(p.length, l.referenceElement), p.push(l), a.append(l.getTarget())));
+          displayRuleTargets.forEach(function (item) {
+            if (!item.element.showInPage(item.paper.index, p.length)) {
+              item.target.remove();
+            }
+          });
           p.forEach(function (n) {
             n.updatePaperNumber(n.index + 1, p.length, e.paperNumberToggleInEven), r.fillPaperHeaderAndFooter(n, t, p.length), e && (null != e.leftOffset && n.setLeftOffset(e.leftOffset), null != e.topOffset && n.setTopOffset(e.topOffset));
           });
@@ -10074,11 +10099,11 @@ var hiprint = function (t) {
             o.length && t.append(o[0].target);
           }
         });
-      }, t.prototype.clear = function () {
+      }, t.prototype.clear = function (skipHistory) {
         this.printElements.forEach(function (t) {
           t.designTarget && t.designTarget.length && t.designTarget.remove();
         }), this.printElements = [];
-        o.a.event.trigger("hiprintTemplateDataChanged_" + this.templateId, "清空");
+        if (!skipHistory) o.a.event.trigger("hiprintTemplateDataChanged_" + this.templateId, "清空");
       }, t.prototype.insertPrintElementToPanel = function (t) {
         var e = this.getPrintElementTypeByEntity(t);
 
@@ -10459,8 +10484,8 @@ var hiprint = function (t) {
         a.bind("click.submitOption", function () {
           i.submitOption();
         }), p.bind("click.deleteBtn", function () {
-          hinnn.event.trigger("hiprintTemplateDataChanged_" + i.templateId, "删除");
           n.printTemplate.deletePrintElement(i);
+          hinnn.event.trigger("hiprintTemplateDataChanged_" + i.templateId, "删除");
           e.clearSettingContainer();
         }), r.find(".auto-submit").change(function (t) {
           i.submitOption();
@@ -10571,7 +10596,7 @@ var hiprint = function (t) {
         this.onDataChanged = n.onDataChanged;
         this.onUpdateError = n.onUpdateError;
         this.lastJson = n.template || {};
-        this.historyList = [{id: s.a.instance.guid(), type: '初始', json: this.lastJson}];
+        this.historyList = [{id: s.a.instance.guid(), type: '初始', json: this.cloneHistoryJson(this.lastJson)}];
         this.historyPos = 0;
         this.defaultPanelName = n.defaultPanelName;
         this.designOptions = {};
@@ -10618,6 +10643,10 @@ var hiprint = function (t) {
         this.createContainer(t), this.printPanels.forEach(function (t, i) {
           n.container.append(t.getTarget()), i > 0 && t.disable(), t.design(e);
         }), this.selectPanel(0);
+        if (!this.historyList[0].json || !this.historyList[0].json.panels || !this.historyList[0].json.panels.length) {
+          this.historyList[0].json = this.cloneHistoryJson(this.getJson());
+          this.lastJson = this.cloneHistoryJson(this.historyList[0].json);
+        }
       }, t.prototype.getSimpleHtml = function (t, e) {
         var n = this;
         e || (e = {});
@@ -10682,13 +10711,20 @@ var hiprint = function (t) {
           i.append(r.getHtml(t, e, o, void 0, n));
         }), i;
       }, t.prototype.setPaper = function (t, e) {
-        if (/^(([1-9][0-9]*)|(([0]\.\d{1,2}|[1-9][0-9]*\.\d{1,2})))$/.test(t)) this.editingPanel.resize(void 0, parseFloat(t), parseFloat(e), !1); else {
-          var n = s.a.instance[t];
-          if (!n) throw new Error("not found pagetype:" + (t || ""));
-          this.editingPanel.resize(t, n.width, n.height, !1);
+        var panel = this.editingPanel;
+        var beforeWidth = panel.width;
+        var beforeHeight = panel.height;
+        if (/^(([1-9][0-9]*)|(([0]\.\d{1,2}|[1-9][0-9]*\.\d{1,2})))$/.test(t)) panel.resize(void 0, parseFloat(t), parseFloat(e), !1); else {
+          var paperType = s.a.instance[t];
+          if (!paperType) throw new Error("not found pagetype:" + (t || ""));
+          panel.resize(t, paperType.width, paperType.height, !1);
+        }
+        if (beforeWidth !== panel.width || beforeHeight !== panel.height) {
+          this.recordHistory("纸张调整");
         }
       }, t.prototype.rotatePaper = function () {
         this.editingPanel.rotatePaper();
+        this.recordHistory("旋转纸张");
       }, t.prototype.zoom = function (s, p) {
         this.editingPanel.zoom(s, p);
       }, t.prototype.addPrintPanel = function (t, e) {
@@ -10726,6 +10762,15 @@ var hiprint = function (t) {
         }), new st({
           panels: t
         });
+      }, t.prototype.cloneHistoryJson = function (t) {
+        if (null == t) return {};
+        try {
+          return JSON.parse(JSON.stringify(t));
+        } catch (e) {
+          return t;
+        }
+      }, t.prototype.recordHistory = function (t) {
+        o.a.event.trigger("hiprintTemplateDataChanged_" + this.id, t || "模板修改");
       }, t.prototype.undo = function (t) {
         o.a.event.trigger("hiprintTemplateDataShortcutKey_" + this.id, "undo");
       }, t.prototype.redo = function (t) {
@@ -10736,11 +10781,11 @@ var hiprint = function (t) {
         return "BuildCustomOptionSettingEventKey_" + this.id;
       }, t.prototype.clear = function () {
         this.printPanels.forEach(function (t) {
-          if (t.clear(), t.index > 0) {
+          if (t.clear(true), t.index > 0) {
             var e = t.getTarget();
             e && e.length && e.remove();
           }
-        }), this.printPanels = [this.printPanels[0]], this.printPaginationCreator && this.printPaginationCreator.buildPagination();
+        }), this.printPanels = [this.printPanels[0]], this.printPaginationCreator && this.printPaginationCreator.buildPagination(), this.recordHistory("清空");
       }, t.prototype.getPaperType = function (t) {
         return null == t && (t = 0), this.printPanels[0].paperType;
       }, t.prototype.getOrient = function (t) {
@@ -10964,7 +11009,7 @@ var hiprint = function (t) {
         return this.printPanels.forEach(function (e) {
           t = Object.assign(t, e.getTestData());
         }), t;
-      }, t.prototype.update = function (t, idx) {
+      }, t.prototype.update = function (t, idx, skipHistory) {
         var e = this;
         try {
           if (t && "object" == _typeof(t) && t.panels.length > 0) {
@@ -10981,6 +11026,7 @@ var hiprint = function (t) {
               e.editingPanel.update(temp);
             })
             e.selectPanel(idx || 0);
+            if (!skipHistory) e.recordHistory("模板更新");
           }
         } catch (er) {
           console.log(er);
@@ -11115,6 +11161,7 @@ var hiprint = function (t) {
             })
             break;
           }
+          t.recordHistory("对齐");
         }
       }, t.prototype.setElsSpace = function (dis, isHor) {
         var t = this;
@@ -11141,6 +11188,7 @@ var hiprint = function (t) {
               }
             })
           }
+          t.recordHistory("间距");
         }
       }, t.prototype.initAutoSave = function () {
         var t = this;
@@ -11151,32 +11199,41 @@ var hiprint = function (t) {
             if (t.historyPos > 0) {
               t.historyPos -= 1;
               var cur = t.historyList[t.historyPos];
-              t.update(cur.json);
+              t.update(cur.json, void 0, !0);
+              t.lastJson = t.cloneHistoryJson(cur.json);
+              t.onDataChanged && t.onDataChanged("撤销", t.cloneHistoryJson(cur.json));
             }
             break;
           case "redo":
             if (t.historyPos < t.historyList.length - 1) {
               t.historyPos += 1;
               var cur = t.historyList[t.historyPos];
-              t.update(cur.json);
+              t.update(cur.json, void 0, !0);
+              t.lastJson = t.cloneHistoryJson(cur.json);
+              t.onDataChanged && t.onDataChanged("重做", t.cloneHistoryJson(cur.json));
             }
             break;
           }
         });
         o.a.event.on("hiprintTemplateDataChanged_" + this.id, function (type) {
           if (t.history) {
-            var j = 1 == t.dataMode ? t.getJson() : t.getJsonTid()
-            t.lastJson = j;
+            var j = 1 == t.dataMode ? t.getJson() : t.getJsonTid();
+            var snapshot = t.cloneHistoryJson(j);
+            var current = t.historyList[t.historyPos];
+            if (current && JSON.stringify(current.json) === JSON.stringify(snapshot)) {
+              t.lastJson = snapshot;
+              return;
+            }
+            t.lastJson = snapshot;
             if (t.historyPos < t.historyList.length - 1) {
               t.historyList = t.historyList.slice(0, t.historyPos + 1);
             }
-            t.historyList.push({id: s.a.instance.guid(), type: type, json: j});
+            t.historyList.push({id: s.a.instance.guid(), type: type, json: snapshot});
             if (t.historyList.length > 50) {
-              t.historyList = t.historyList.slice(0, 1).concat(t.historyList.slice(1, 50));
-            } else {
-              t.historyPos += 1;
+              t.historyList = t.historyList.slice(0, 1).concat(t.historyList.slice(-49));
             }
-            t.onDataChanged && t.onDataChanged(type, j);
+            t.historyPos = t.historyList.length - 1;
+            t.onDataChanged && t.onDataChanged(type, snapshot);
           }
         });
       }, t;
