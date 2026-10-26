@@ -54,7 +54,7 @@ import vImg from "./css/image/v_img.svg";
 import {jsPDF} from "jspdf";
 import html2canvas from "html2canvas";
 // 数字转中文,大写,金额
-import Nzh from "nzh/dist/nzh.min.js";
+import Nzh from "nzh";
 // 解析svg 到 canvas, 二维码条形码需要
 import Canvg from 'canvg';
 // 默认自定义拖拽列表
@@ -5719,7 +5719,34 @@ var hiprint = function (t) {
         // 页脚导致 分页高度的问题, -> 获取到表格脚高度后移除避免重复
         var tfh = r.find('tfoot').outerHeight() || 0;
         r.find('tfoot').remove();
+        var noProgressPages = 0,
+          maxPages = Math.max(4, o.find('tbody tr').length * 2 + 4),
+          self = this;
+        function paginationOverflowResult() {
+          var top = Math.max(0, Math.min(Number(self.options.getTop()) || 0, Number(t.height) || 0)),
+            target = r.clone();
+          target.find('.hiprint-printElement-table-content').append(
+            $('<div class="hiprint-table-pagination-error"></div>').text('表格内容超出纸张，请调整表格或页眉页脚').css({ color: 'firebrick', background: '#fff', padding: '4px' })
+          );
+          target.css('left', self.options.displayLeft()).css('top', top + 'pt');
+          return [new _dto_PaperHtmlResult__WEBPACK_IMPORTED_MODULE_2__.a({
+            target: target,
+            printLine: top + self.options.getHeight(),
+            referenceElement: new _PrintReferenceElement__WEBPACK_IMPORTED_MODULE_4__.a({
+              top: self.options.getTop(),
+              left: self.options.getLeft(),
+              height: self.options.getHeight(),
+              width: self.options.getWidth(),
+              beginPrintPaperIndex: t.index,
+              bottomInLastPaper: top + self.options.getHeight(),
+              printTopInPaper: top
+            })
+          })];
+        }
         for (var a, p = this.getBeginPrintTopInPaperByReferenceElement(t), s = 0, l = !1; !l;) {
+          if (s >= maxPages || !Number.isFinite(t.getContentHeight(s)) || t.getContentHeight(s) <= 0) {
+            return paginationOverflowResult();
+          }
           var u = 0,
             d = t.getPaperFooter(s);
           0 == s && p > d && "none" != t.panelPageRule && (p = p - d + t.paperHeader, n.push(new _dto_PaperHtmlResult__WEBPACK_IMPORTED_MODULE_2__.a({
@@ -5728,6 +5755,12 @@ var hiprint = function (t) {
           })), u = t.getContentHeight(s) - (p - t.paperHeader), s++ , d = t.getPaperFooter(s));
           var c = n.length > 0 ? n[n.length - 1].target : void 0,
             h = this.getRowsInSpecificHeight(e, u > 0 ? u : 0 == s ? d - p : t.getContentHeight(s), r, o, s, c, tfh);
+          if (!h.isEnd && !h.length) {
+            noProgressPages++;
+            if (noProgressPages >= 3) return paginationOverflowResult();
+          } else {
+            noProgressPages = 0;
+          }
           l = h.isEnd;
           if (u < 0) {
             n[0].target = $(`<div style="position:absolute;background: red;color: white;padding: 0px 4px;">${i18n.__('没有足够空间进行表格分页，请调整页眉/页脚线')}</div>`)
@@ -5931,7 +5964,9 @@ var hiprint = function (t) {
       }, TablePrintElement.prototype.autoCompletion = function (t, e, tfh) {
         var that = this;
         for (var n, i = this.getEmptyRowTarget(), o = e.outerHeight() + tfh; t > o;) {
+          var previousHeight = o;
           n = i.clone(), e.find("tbody").append(n), o = e.outerHeight() + tfh;
+          if (!Number.isFinite(o) || o <= previousHeight) break;
           if (that.options.maxRows && e.find("tbody").children().length > that.options.maxRows) {
             break;
           }
@@ -9687,8 +9722,26 @@ var hiprint = function (t) {
       }, t;
     }(),
     pt = function () {
+      function normalizePaperBounds(height, header, footer) {
+        var fullHeight = o.a.mm.toPt(height),
+          normalizedHeader = header == null ? 0 : Number(header),
+          normalizedFooter = footer == null ? fullHeight : Number(footer);
+        if (!Number.isFinite(normalizedHeader) || !Number.isFinite(normalizedFooter) ||
+          normalizedHeader < 0 || normalizedFooter <= normalizedHeader || normalizedFooter > fullHeight) {
+          return { header: 0, footer: fullHeight };
+        }
+        return { header: normalizedHeader, footer: normalizedFooter };
+      }
+
+      function normalizeOptionalFooter(value, header, fullHeight) {
+        if (value == null) return value;
+        var footer = Number(value);
+        return Number.isFinite(footer) && footer > header && footer <= fullHeight ? footer : void 0;
+      }
+
       function t(t, e) {
-        this.templateId = e, this.index = t.index, this.name = t.name, this.width = t.width, this.height = t.height, this.paperType = t.paperType, this.paperHeader = t.paperHeader, this.paperFooter = t.paperFooter, this.initPrintElements(t.printElements), this.paperNumberLeft = t.paperNumberLeft, this.paperNumberTop = t.paperNumberTop, this.paperNumberDisabled = t.paperNumberDisabled, this.paperNumberContinue = t.paperNumberContinue == void 0 ? true : t.paperNumberContinue, this.paperNumberFormat = t.paperNumberFormat, this.panelPaperRule = t.panelPaperRule, this.panelPageRule = t.panelPageRule, this.firstPaperFooter = t.firstPaperFooter, this.evenPaperFooter = t.evenPaperFooter, this.oddPaperFooter = t.oddPaperFooter, this.lastPaperFooter = t.lastPaperFooter, this.topOffset = t.topOffset, this.leftOffset = t.leftOffset, this.fontFamily = t.fontFamily, this.orient = t.orient, this.target = this.createTarget(), this.rotate = t.rotate, this.scale = t.scale, this.watermarkOptions = t.watermarkOptions || {}, this.panelLayoutOptions = t.panelLayoutOptions || {};
+        var bounds = normalizePaperBounds(t.height, t.paperHeader, t.paperFooter);
+        this.templateId = e, this.index = t.index, this.name = t.name, this.width = t.width, this.height = t.height, this.paperType = t.paperType, this.paperHeader = bounds.header, this.paperFooter = bounds.footer, this.initPrintElements(t.printElements), this.paperNumberLeft = t.paperNumberLeft, this.paperNumberTop = t.paperNumberTop, this.paperNumberDisabled = t.paperNumberDisabled, this.paperNumberContinue = t.paperNumberContinue == void 0 ? true : t.paperNumberContinue, this.paperNumberFormat = t.paperNumberFormat, this.panelPaperRule = t.panelPaperRule, this.panelPageRule = t.panelPageRule, this.firstPaperFooter = normalizeOptionalFooter(t.firstPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.evenPaperFooter = normalizeOptionalFooter(t.evenPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.oddPaperFooter = normalizeOptionalFooter(t.oddPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.lastPaperFooter = normalizeOptionalFooter(t.lastPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.topOffset = t.topOffset, this.leftOffset = t.leftOffset, this.fontFamily = t.fontFamily, this.orient = t.orient, this.target = this.createTarget(), this.rotate = t.rotate, this.scale = t.scale, this.watermarkOptions = t.watermarkOptions || {}, this.panelLayoutOptions = t.panelLayoutOptions || {};
       }
 
       return t.prototype.design = function (t) {
@@ -9733,8 +9786,9 @@ var hiprint = function (t) {
           var start = Date.now();
           console.log('start', start)
           var e = this;
-          this.index = t.index, this.name = t.name, this.width = t.width, this.height = t.height, this.paperType = t.paperType, this.paperHeader = t.paperHeader, this.paperFooter = t.paperFooter;
-          this.designPaper.width = o.a.mm.toPt(t.width), this.designPaper.height = o.a.mm.toPt(this.height), this.designPaper.paperType = this.paperType, this.designPaper.paperHeader = this.paperHeader, this.designPaper.paperFooter = this.paperFooter;
+          var bounds = normalizePaperBounds(t.height, t.paperHeader, t.paperFooter);
+          this.index = t.index, this.name = t.name, this.width = t.width, this.height = t.height, this.paperType = t.paperType, this.paperHeader = bounds.header, this.paperFooter = bounds.footer;
+          this.designPaper.width = o.a.mm.toPt(t.width), this.designPaper.height = o.a.mm.toPt(this.height), this.designPaper.paperType = this.paperType, this.designPaper.paperHeader = this.paperHeader, this.designPaper.paperFooter = this.paperFooter, this.designPaper.contentHeight = this.paperFooter - this.paperHeader;
           this.designPaper.mmheight = t.height, this.designPaper.mmwidth = t.width;
           // 页眉线
           this.designPaper.headerLinetarget.css("top", (this.paperHeader || -1) + "pt"),
@@ -9754,8 +9808,8 @@ var hiprint = function (t) {
           this.fontFamily = t.fontFamily, this.orient = t.orient, this.rotate = t.rotate, this.scale = t.scale;
           this.designPaper.fontFamily = this.fontFamily, this.designPaper.orient = this.orient, this.designPaper.scale = e.designPaper.scale || this.scale;
           // 面板参数
-          this.panelLayoutOptions = t.panelLayoutOptions, this.panelPaperRule = t.panelPaperRule, this.panelPageRule = t.panelPageRule, this.firstPaperFooter = t.firstPaperFooter, this.evenPaperFooter = t.evenPaperFooter,
-            this.oddPaperFooter = t.oddPaperFooter, this.lastPaperFooter = t.lastPaperFooter, this.topOffset = t.topOffset, this.leftOffset = t.leftOffset;
+          this.panelLayoutOptions = t.panelLayoutOptions, this.panelPaperRule = t.panelPaperRule, this.panelPageRule = t.panelPageRule, this.firstPaperFooter = normalizeOptionalFooter(t.firstPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.evenPaperFooter = normalizeOptionalFooter(t.evenPaperFooter, bounds.header, o.a.mm.toPt(t.height)),
+            this.oddPaperFooter = normalizeOptionalFooter(t.oddPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.lastPaperFooter = normalizeOptionalFooter(t.lastPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.topOffset = t.topOffset, this.leftOffset = t.leftOffset;
           this.designPaper.setFooter(this.firstPaperFooter, this.evenPaperFooter, this.oddPaperFooter, this.lastPaperFooter),
             this.designPaper.setOffset(this.leftOffset, this.topOffset);
           // 宽高
