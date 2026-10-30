@@ -49,7 +49,12 @@ module.exports = {
     canvg: 'canvg',
     jspdf: "jspdf",
     "bwip-js": 'bwip-js',
-    "nzh": "Nzh",
+    nzh: {
+      commonjs: 'nzh',
+      commonjs2: 'nzh',
+      amd: 'nzh',
+      root: 'Nzh',
+    },
   },
   optimization:{
     minimizer:[

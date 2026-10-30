@@ -45,6 +45,7 @@ import "./plugins/qrcode.js";
 import bwipjs from "bwip-js"
 // 水印
 import watermark from "./plugins/watermark.js";
+import DesignBackgroundOption from "./plugins/design-background-option.js";
 // 直接打印需要
 import {io} from "socket.io-client";
 //引入标尺
@@ -5382,7 +5383,7 @@ var hiprint = function (t) {
       t.init(), t.printElementOptionItems[e.name] = e;
     }, t.getItem = function (e) {
       return t.init(), t.printElementOptionItems[e];
-    }, t._printElementOptionItems = [new fontFamily(), new r(), new a(), new p(), new i(), new s(), new l(), new pt(), new u(), new d(), new c(), new h(), new f(), new g(), new m(), new d2(), new c2(), new v(), new y(), new b(), new E(), new qrCodeLevel(), new T(), new P(), new _(), new w(), new x(), new coordinate(), new widthHeight(), new C(), new imageFit(), new O(), new H(), new D(), new paperNumberContinue(), new watermarkOptions(), new I(), new R(), new pageBreak(), new M(), new M2(), new S(), new B(), new F(), new L(), new A(), new z(), new k(), new st(), new N(), new V(), new W(), new j(), new U(), new borderRadius(), new zIndex(), new K(), new G(), new q(), new X(), new Y(), new Q(), new J(), new Z(), new tt(), new et(), new nt(), new it(), new ot(),new textWrap(), new at(), new lt(), new panelLayoutOptions(), new ut(), new ith(), new dt(), new ct(), new ht(), new ft(), new gt(), new mt(), new rowcolumns(), new rowsColumnsMergeClean(), new groupSequenceContinue(), new groupFieldsFormatter(), new groupFormatter(), new groupFooterFormatter(), new vt(), new yt(), new bt(), new Tt(), new Et(), new Pt(), new stylerHeader(), new renderFormatter(), new _t(), new wt(), new maxRows(), new xt(), new tableColumnH(), new tableE(), new tableQRCodeLevel(), new tablept(), new tableSummaryTitle(), new tableSummaryText(), new tableSummaryColspan(), new tableSummary(), new tableSummaryAlign(), new tableSummaryNumFormat(), new tableSummaryFormatter(),new showCodeTitle(), new upperCase(), new barcodeType(), new qrcodeType(), new barColor(), new barTextMode(), new barWidth(), new barAutoWidth()], t;
+    }, t._printElementOptionItems = [new fontFamily(), new r(), new a(), new p(), new i(), new s(), new l(), new pt(), new u(), new d(), new c(), new h(), new f(), new g(), new m(), new d2(), new c2(), new v(), new y(), new b(), new E(), new qrCodeLevel(), new T(), new P(), new _(), new w(), new x(), new coordinate(), new widthHeight(), new C(), new imageFit(), new O(), new H(), new D(), new paperNumberContinue(), new watermarkOptions(), new DesignBackgroundOption(), new I(), new R(), new pageBreak(), new M(), new M2(), new S(), new B(), new F(), new L(), new A(), new z(), new k(), new st(), new N(), new V(), new W(), new j(), new U(), new borderRadius(), new zIndex(), new K(), new G(), new q(), new X(), new Y(), new Q(), new J(), new Z(), new tt(), new et(), new nt(), new it(), new ot(),new textWrap(), new at(), new lt(), new panelLayoutOptions(), new ut(), new ith(), new dt(), new ct(), new ht(), new ft(), new gt(), new mt(), new rowcolumns(), new rowsColumnsMergeClean(), new groupSequenceContinue(), new groupFieldsFormatter(), new groupFormatter(), new groupFooterFormatter(), new vt(), new yt(), new bt(), new Tt(), new Et(), new Pt(), new stylerHeader(), new renderFormatter(), new _t(), new wt(), new maxRows(), new xt(), new tableColumnH(), new tableE(), new tableQRCodeLevel(), new tablept(), new tableSummaryTitle(), new tableSummaryText(), new tableSummaryColspan(), new tableSummary(), new tableSummaryAlign(), new tableSummaryNumFormat(), new tableSummaryFormatter(),new showCodeTitle(), new upperCase(), new barcodeType(), new qrcodeType(), new barColor(), new barTextMode(), new barWidth(), new barAutoWidth()], t;
   }();
 }, function (t, e, n) {
   "use strict";
@@ -9697,7 +9698,7 @@ var hiprint = function (t) {
           t.height ? (this.height = t.height, this.width = t.width) : (this.height = e.height, this.width = e.width);
         } else this.height = t.height, this.width = t.width;
 
-        this.paperHeader = t.paperHeader || 0, this.paperFooter = t.paperFooter || o.a.mm.toPt(this.height), this.printElements = t.printElements || [], this.paperNumberLeft = t.paperNumberLeft, this.paperNumberTop = t.paperNumberTop, this.paperNumberDisabled = t.paperNumberDisabled, this.paperNumberContinue = t.paperNumberContinue, this.paperNumberFormat = t.paperNumberFormat, this.panelPaperRule = t.panelPaperRule, this.panelPageRule = t.panelPageRule, this.rotate = t.rotate || void 0, this.firstPaperFooter = t.firstPaperFooter, this.evenPaperFooter = t.evenPaperFooter, this.oddPaperFooter = t.oddPaperFooter, this.lastPaperFooter = t.lastPaperFooter, this.topOffset = t.topOffset, this.fontFamily = t.fontFamily, this.leftOffset = t.leftOffset, this.orient = t.orient, this.scale = t.scale, this.watermarkOptions= t.watermarkOptions, this.panelLayoutOptions = t.panelLayoutOptions;
+        this.paperHeader = t.paperHeader || 0, this.paperFooter = t.paperFooter || o.a.mm.toPt(this.height), this.printElements = t.printElements || [], this.paperNumberLeft = t.paperNumberLeft, this.paperNumberTop = t.paperNumberTop, this.paperNumberDisabled = t.paperNumberDisabled, this.paperNumberContinue = t.paperNumberContinue, this.paperNumberFormat = t.paperNumberFormat, this.panelPaperRule = t.panelPaperRule, this.panelPageRule = t.panelPageRule, this.rotate = t.rotate || void 0, this.firstPaperFooter = t.firstPaperFooter, this.evenPaperFooter = t.evenPaperFooter, this.oddPaperFooter = t.oddPaperFooter, this.lastPaperFooter = t.lastPaperFooter, this.topOffset = t.topOffset, this.fontFamily = t.fontFamily, this.leftOffset = t.leftOffset, this.orient = t.orient, this.scale = t.scale, this.watermarkOptions= t.watermarkOptions, this.panelLayoutOptions = t.panelLayoutOptions, this.designBackground = t.designBackground;
       };
     }(),
     at = function () {
@@ -9741,12 +9742,12 @@ var hiprint = function (t) {
 
       function t(t, e) {
         var bounds = normalizePaperBounds(t.height, t.paperHeader, t.paperFooter);
-        this.templateId = e, this.index = t.index, this.name = t.name, this.width = t.width, this.height = t.height, this.paperType = t.paperType, this.paperHeader = bounds.header, this.paperFooter = bounds.footer, this.initPrintElements(t.printElements), this.paperNumberLeft = t.paperNumberLeft, this.paperNumberTop = t.paperNumberTop, this.paperNumberDisabled = t.paperNumberDisabled, this.paperNumberContinue = t.paperNumberContinue == void 0 ? true : t.paperNumberContinue, this.paperNumberFormat = t.paperNumberFormat, this.panelPaperRule = t.panelPaperRule, this.panelPageRule = t.panelPageRule, this.firstPaperFooter = normalizeOptionalFooter(t.firstPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.evenPaperFooter = normalizeOptionalFooter(t.evenPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.oddPaperFooter = normalizeOptionalFooter(t.oddPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.lastPaperFooter = normalizeOptionalFooter(t.lastPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.topOffset = t.topOffset, this.leftOffset = t.leftOffset, this.fontFamily = t.fontFamily, this.orient = t.orient, this.target = this.createTarget(), this.rotate = t.rotate, this.scale = t.scale, this.watermarkOptions = t.watermarkOptions || {}, this.panelLayoutOptions = t.panelLayoutOptions || {};
+        this.templateId = e, this.index = t.index, this.name = t.name, this.width = t.width, this.height = t.height, this.paperType = t.paperType, this.paperHeader = bounds.header, this.paperFooter = bounds.footer, this.initPrintElements(t.printElements), this.paperNumberLeft = t.paperNumberLeft, this.paperNumberTop = t.paperNumberTop, this.paperNumberDisabled = t.paperNumberDisabled, this.paperNumberContinue = t.paperNumberContinue == void 0 ? true : t.paperNumberContinue, this.paperNumberFormat = t.paperNumberFormat, this.panelPaperRule = t.panelPaperRule, this.panelPageRule = t.panelPageRule, this.firstPaperFooter = normalizeOptionalFooter(t.firstPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.evenPaperFooter = normalizeOptionalFooter(t.evenPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.oddPaperFooter = normalizeOptionalFooter(t.oddPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.lastPaperFooter = normalizeOptionalFooter(t.lastPaperFooter, bounds.header, o.a.mm.toPt(t.height)), this.topOffset = t.topOffset, this.leftOffset = t.leftOffset, this.fontFamily = t.fontFamily, this.orient = t.orient, this.target = this.createTarget(), this.rotate = t.rotate, this.scale = t.scale, this.watermarkOptions = t.watermarkOptions || {}, this.panelLayoutOptions = t.panelLayoutOptions || {}, this.designBackground = t.designBackground || {};
       }
 
       return t.prototype.design = function (t) {
         var e = this;
-        this.orderPrintElements(), this.designPaper = this.createNewPage(0), this.target.html(""), this.target.append(this.designPaper.getTarget()), this.droppablePaper(this.designPaper), this.designPaper.design(t), this.designPaper.subscribePaperBaseInfoChanged(function (t) {
+        this.orderPrintElements(), this.designPaper = this.createNewPage(0), this.target.html(""), this.target.append(this.designPaper.getTarget()), this.droppablePaper(this.designPaper), this.designPaper.design(t), this.applyDesignBackground(), this.designPaper.subscribePaperBaseInfoChanged(function (t) {
           e.paperHeader = t.paperHeader, e.paperFooter = t.paperFooter, e.paperNumberLeft = t.paperNumberLeft, e.paperNumberTop = t.paperNumberTop, e.paperNumberDisabled = t.paperNumberDisabled, e.paperNumberFormat = t.paperNumberFormat;
         }), this.printElements.forEach(function (n) {
           e.appendDesignPrintElement(e.designPaper, n), n.design(t, e.designPaper);
@@ -9766,6 +9767,7 @@ var hiprint = function (t) {
             paperNumberDisabled: e.paperNumberDisabled,
             paperNumberContinue: e.paperNumberContinue,
             paperNumberFormat: e.paperNumberFormat,
+            designBackground: e.designBackground || {},
             watermarkOptions: e.watermarkOptions || {},
           };
           if (!p.a.instance.paperNumberContinue) {
@@ -9775,6 +9777,7 @@ var hiprint = function (t) {
             options: panelOptions,
             callback: function callback(t) {
               e.panelLayoutOptions = t.panelLayoutOptions || {},e.watermarkOptions = t.watermarkOptions || void 0, (t.watermarkOptions && e.designPaper.createWaterMark(true, 1, t.watermarkOptions))
+              e.designBackground = t.designBackground || {}, e.applyDesignBackground();
               e.panelPaperRule = t.panelPaperRule, e.panelPageRule = t.panelPageRule, e.firstPaperFooter = t.firstPaperFooter, e.evenPaperFooter = t.evenPaperFooter, e.oddPaperFooter = t.oddPaperFooter, e.lastPaperFooter = t.lastPaperFooter, e.leftOffset = t.leftOffset, e.topOffset = t.topOffset, e.fontFamily = t.fontFamily, e.orient = t.orient, e.paperNumberDisabled = e.designPaper.paperNumberDisabled = !!t.paperNumberDisabled || void 0, e.paperNumberContinue = e.designPaper.paperNumberContinue = t.paperNumberContinue, e.paperNumberFormat = t.paperNumberFormat, e.designPaper.paperNumberFormat = t.paperNumberFormat, (t.paperNumberFormat && (e.designPaper.paperNumberTarget = e.designPaper.createPaperNumber(e.designPaper.formatPaperNumber(1, 1), true))), e.designPaper.setOffset(e.leftOffset, e.topOffset), e.css(e.target), e.designPaper.resetPaperNumber(e.designPaper.paperNumberTarget), e.designPaper.triggerOnPaperBaseInfoChanged();
             }
           });
@@ -9800,6 +9803,8 @@ var hiprint = function (t) {
           // 水印参数
           this.watermarkOptions = t.watermarkOptions || {};
           this.designPaper.createWaterMark(true, this.index, this.watermarkOptions);
+          this.designBackground = t.designBackground || {};
+          this.applyDesignBackground();
           // 页码
           this.paperNumberLeft = t.paperNumberLeft, this.paperNumberTop = t.paperNumberTop, this.paperNumberDisabled = t.paperNumberDisabled, this.paperNumberContinue = t.paperNumberContinue, this.paperNumberFormat = t.paperNumberFormat;
           this.designPaper.paperNumberLeft = this.paperNumberLeft, this.designPaper.paperNumberTop = this.paperNumberTop, this.designPaper.paperNumberDisabled = this.paperNumberDisabled, this.designPaper.paperNumberContinue = this.paperNumberContinue, this.designPaper.paperNumberFormat = this.paperNumberFormat;
@@ -10044,6 +10049,14 @@ var hiprint = function (t) {
         }
 
         return a;
+      }, t.prototype.applyDesignBackground = function () {
+        if (!this.designPaper || !this.designPaper.target) return;
+        var background = this.designBackground || {}, src = typeof background.src === 'string' ? background.src.trim() : '';
+        if (!/^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(src) && !/^https?:\/\/[^\s"'\\]+$/i.test(src) && !/^\/(?!\/)[^\s"'\\]*$/.test(src)) src = '';
+        var paper = this.designPaper.target;
+        paper.toggleClass('hiprint-design-background', !!src);
+        paper.css('--hiprint-design-background-image', src ? 'url("' + src.replace(/["\\]/g, '') + '")' : 'none');
+        paper.css('--hiprint-design-background-opacity', background.opacity != null && Number.isFinite(Number(background.opacity)) ? Math.min(1, Math.max(0, Number(background.opacity))) : 1);
       }, t.prototype.resize = function (t, e, n, i) {
         this.width = e, this.height = n, this.paperType = t, this.rotate = i, this.designPaper.resize(e, n);
       }, t.prototype.rotatePaper = function () {
@@ -10076,6 +10089,7 @@ var hiprint = function (t) {
           paperNumberDisabled: !!this.paperNumberDisabled || void 0,
           paperNumberContinue: this.paperNumberContinue == void 0 ? !0 : this.paperNumberContinue,
           paperNumberFormat: this.paperNumberFormat ? this.paperNumberFormat : void 0,
+          designBackground: this.designBackground || {},
           panelPaperRule: this.panelPaperRule ? this.panelPaperRule : void 0,
           panelPageRule: this.panelPageRule ? this.panelPageRule : void 0,
           paperNumberLeft: this.paperNumberLeft,
@@ -10157,6 +10171,8 @@ var hiprint = function (t) {
         this.printElements.forEach(function (t) {
           t.designTarget && t.designTarget.length && t.designTarget.remove();
         }), this.printElements = [];
+        this.designBackground = {};
+        this.applyDesignBackground();
         if (!skipHistory) o.a.event.trigger("hiprintTemplateDataChanged_" + this.templateId, "清空");
       }, t.prototype.insertPrintElementToPanel = function (t) {
         var e = this.getPrintElementTypeByEntity(t);
@@ -10381,7 +10397,8 @@ var hiprint = function (t) {
           this.panels = [];
 
           for (var e = 0; e < t.panels.length; e++) {
-            this.panels.push(new rt(t.panels[e]));
+            var panel = t.panels[e];
+            this.panels.push(new rt(panel.designBackground == null && t.designBackground ? Object.assign({}, panel, { designBackground: t.designBackground }) : panel));
           }
         } else this.panels = [];
       };
@@ -11069,6 +11086,7 @@ var hiprint = function (t) {
           if (t && "object" == _typeof(t) && t.panels.length > 0) {
             var curLen = e.printPanels.length - 1;
             t.panels.forEach(function(panel, index) {
+              if (panel.designBackground == null && t.designBackground) panel = Object.assign({}, panel, { designBackground: t.designBackground });
               if (index > curLen) {
                 e.printPanels.push(new pt(panel, e.id));
                 var t = e.printPanels[index];

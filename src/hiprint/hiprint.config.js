@@ -66,6 +66,10 @@
           hidden: false
         },
         {
+          name: 'designBackground',
+          hidden: false
+        },
+        {
           name: 'watermarkOptions',
           hidden: false
         },

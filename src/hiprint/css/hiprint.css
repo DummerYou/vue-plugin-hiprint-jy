@@ -4,6 +4,23 @@
   background-position: left top;
 }
 
+.hiprint-printPaper.design.hiprint-design-background::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--hiprint-design-background-image);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  content: '';
+  opacity: var(--hiprint-design-background-opacity, 1);
+  pointer-events: none;
+}
+
+.hiprint-printPaper.design.hiprint-design-background .hiprint-printPaper-content {
+  z-index: 0;
+}
+
 .horLine {
   position: absolute;
   border: 0;
